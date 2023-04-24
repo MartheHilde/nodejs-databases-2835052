@@ -45,7 +45,10 @@ class MongoBackend {
     return this.collection.insertMany(documents);
   }
 
-  async getMax() {}
+  async getMax() {
+    // How to get the maximum value? USE SORTING! We will sort the value by desc order and get the one element, the highest value.
+    return this.collection.findOne({}, {sort: {value: 1}})
+  }
 
   // Max will call from the main script to get the maximum value
 
@@ -67,10 +70,20 @@ class MongoBackend {
 
     console.info(`Inserted ${insertResult.result.n} documents into MongoDB`)
 
+    console.info("Querying MongoDB");
+    console.time("mongodb-find");
+    const doc = await this.getMax();
+    console.timeEnd("mongodb-find");
+
     console.info("Disconnecting from MongoDB")
     console.time("mongodb-disconnect")
     await this.disconnect();
     console.timeEnd("mongodb-disconnect");
+
+    return {
+      date: doc.date,
+      value: doc.value,
+    }
   }
 }
 
